@@ -18,7 +18,7 @@ function App() {
   const [gameStatus, setGameStatus] = useState<'playing' | 'won' | 'draw'>('playing');
   const [winningLine, setWinningLine] = useState<number[] | null>(null);
 
-  // Check for winner or draw test aa bb
+  // Check for winner or draw test aa bb cc
   useEffect(() => {  
     const result = calculateWinner(board);
     
