@@ -87,6 +87,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.TOKENV1 }}   # ✅ use token with write access
 
       - name: Download image tag
         uses: actions/download-artifact@v4
@@ -103,7 +105,6 @@ jobs:
           echo "Updated deployment.yaml:"
           cat kubernetes/deployment.yaml
 
-      # Optional: Commit updated deployment.yaml back to repo
       - name: Commit and push deployment file
         run: |
           git config user.name "github-actions"
