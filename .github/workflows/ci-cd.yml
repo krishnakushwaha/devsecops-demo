@@ -120,19 +120,17 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
+      - name: Set image tag from Docker job
+        run: echo "IMAGE_TAG=${{ needs.docker.outputs.image_tag }}" >> $GITHUB_ENV
+
       - name: Update Kubernetes deployment file
         env:
-          IMAGE_TAG: sha-${{ github.sha }}
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
           REGISTRY: ghcr.io
           IMAGE_NAME: krishnakushwaha/devsecops-demo/node-app
         run: |
-          # Define the new image with tag
           NEW_IMAGE="${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
-          
-          # Update the deployment file directly
           sed -i "s|image: .*|image: ${NEW_IMAGE}|g" kubernetes/deployment.yaml
-          
-          # Verify the change
           echo "✅ Updated deployment to use image: ${NEW_IMAGE}"
           grep -A 1 "image:" kubernetes/deployment.yaml
 
@@ -141,3 +139,11 @@ jobs:
           git add kubernetes/deployment.yaml
           git commit -m "Update Kubernetes deployment with new image tag: ${{ env.IMAGE_TAG }} [skip ci]" || echo "No changes to commit"
           git push
+
+      - name: Deploy to Kubernetes
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Apply deployment
+        run: kubectl apply -f kubernetes/deployment.yaml
